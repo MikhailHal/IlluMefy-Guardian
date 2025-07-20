@@ -22,4 +22,11 @@ export interface IGuardianDispatcher {
      * @param {any} data イベントデータ
      */
     handleEvent(eventType: string, data: unknown): Promise<void>;
+
+    /**
+     * スラッシュコマンド登録
+     * @param {string} token Discord Bot Token
+     * @param {string} clientId Discord Application ID
+     */
+    registerSlashCommands(token: string, clientId: string): Promise<void>;
 }

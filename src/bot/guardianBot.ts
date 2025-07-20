@@ -31,6 +31,33 @@ export class GuardianBot implements IGuardianBot {
      */
     async initialize(): Promise<void> {
         await this.dispatcher.initialize();
+        this.setupEventHandlers();
+
+        // スラッシュコマンド登録
+        const token = await this.configService.getDiscordToken();
+        const applicationId = await this.configService.getDiscordApplicationId();
+        await this.dispatcher.registerSlashCommands(token, applicationId);
+    }
+
+    /**
+     * イベントハンドラー設定
+     */
+    private setupEventHandlers(): void {
+        this.client.on("ready", () => {
+            console.log(`${this.client.user?.tag} でログイン完了`);
+        });
+
+        this.client.on("interactionCreate", async (interaction) => {
+            if (interaction.isCommand()) {
+                await this.dispatcher.handleCommand(interaction);
+            }
+        });
+
+        this.client.on("messageCreate", async (message) => {
+            if (!message.author.bot) {
+                await this.dispatcher.handleEvent("messageCreate", message);
+            }
+        });
     }
     /**
      * 開始
