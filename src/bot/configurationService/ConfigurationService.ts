@@ -1,4 +1,4 @@
-import { IConfigurationService } from "../../bot/interface/IConfigurationService";
+import { IConfigurationService } from "./IConfigurationService";
 import { ISecretManager } from "../../lib/secretManager/ISecretManager";
 
 /**

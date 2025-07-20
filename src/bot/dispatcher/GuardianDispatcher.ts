@@ -1,5 +1,5 @@
 import { CommandInteraction } from "discord.js";
-import { IGuardianDispatcher } from "../interface/IGuardianDispatcher";
+import { IGuardianDispatcher } from "./IGuardianDispatcher";
 import { CommandRegistry } from "../commandRegistry/CommandRegistry";
 import { ICommandRegistry } from "../commandRegistry/ICommandRegistry";
 

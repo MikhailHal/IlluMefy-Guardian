@@ -1,7 +1,7 @@
 import { Client, GatewayIntentBits } from "discord.js";
-import { IConfigurationService } from "./interface/IConfigurationService";
-import { IGuardianBot } from "./interface/IGuardianBot";
-import { IGuardianDispatcher } from "./interface/IGuardianDispatcher";
+import { IConfigurationService } from "./configurationService/IConfigurationService";
+import { IGuardianBot } from "./IGuardianBot";
+import { IGuardianDispatcher } from "./dispatcher/IGuardianDispatcher";
 
 /**
  * GuardianBot メインクラス
