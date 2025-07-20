@@ -1,11 +1,12 @@
 import { REST, Routes, SlashCommandBuilder } from "discord.js";
-import { ICommand } from "./interface/ICommand";
-import { PingCommand } from "./PingCommand";
+import { ICommand } from "../commands/interface/ICommand";
+import { PingCommand } from "../commands/PingCommand";
+import { ICommandRegistry } from "./ICommandRegistry";
 
 /**
  * コマンド登録管理
  */
-export class CommandRegistry {
+export class CommandRegistry implements ICommandRegistry {
     private commands: Map<string, ICommand> = new Map();
 
     /**

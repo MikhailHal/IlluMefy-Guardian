@@ -1,13 +1,14 @@
 import { CommandInteraction } from "discord.js";
 import { IGuardianDispatcher } from "../interface/IGuardianDispatcher";
-import { CommandRegistry } from "../commands/CommandRegistry";
+import { CommandRegistry } from "../commandRegistry/CommandRegistry";
+import { ICommandRegistry } from "../commandRegistry/ICommandRegistry";
 
 /**
  * GuardianDispatcher実装
  * コマンドとイベントの統合処理を行う
  */
 export class GuardianDispatcher implements IGuardianDispatcher {
-    private commandRegistry: CommandRegistry;
+    private commandRegistry: ICommandRegistry;
 
     /**
      * コンストラクタ
