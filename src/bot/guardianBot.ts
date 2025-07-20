@@ -3,12 +3,15 @@ import { IConfigurationService } from "./interface/IConfigurationService";
 import { IGuardianBot } from "./interface/IGuardianBot";
 import { IGuardianDispatcher } from "./interface/IGuardianDispatcher";
 
+/**
+ * GuardianBot メインクラス
+ */
 export class GuardianBot implements IGuardianBot {
-    private client: Client
+    private client: Client;
     /**
      * コンストラクタ
      *
-     * @param {IGuardianDispatcher} dispatcher ディスパッチャ 
+     * @param {IGuardianDispatcher} dispatcher ディスパッチャ
      * @param {IConfigurationService} configService 設定ツール
      */
     constructor(
@@ -16,11 +19,11 @@ export class GuardianBot implements IGuardianBot {
         private configService: IConfigurationService,
     ) {
         this.client = new Client({
-              intents: [
+            intents: [
                 GatewayIntentBits.Guilds,
                 GatewayIntentBits.GuildMessages,
-                GatewayIntentBits.MessageContent
-            ]
+                GatewayIntentBits.MessageContent,
+            ],
         });
     }
     /**
