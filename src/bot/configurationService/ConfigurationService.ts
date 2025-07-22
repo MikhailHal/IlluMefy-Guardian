@@ -34,4 +34,20 @@ export class ConfigurationService implements IConfigurationService {
     async getDiscordApplicationId(): Promise<string> {
         return await this.secretManager.getSecret("discord-application-id");
     }
+
+    /**
+     * OpenAI API Key取得
+     * @return {Promise<string>} OpenAI API Key
+     */
+    async getOpenAIApiKey(): Promise<string> {
+        return await this.secretManager.getSecret("openai-api-key");
+    }
+
+    /**
+     * Brave Search API Key取得
+     * @return {Promise<string>} Brave Search API Key
+     */
+    async getBraveSearchApiKey(): Promise<string> {
+        return await this.secretManager.getSecret("brave-search-api-key");
+    }
 }

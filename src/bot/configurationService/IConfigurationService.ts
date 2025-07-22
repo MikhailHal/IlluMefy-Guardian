@@ -19,4 +19,16 @@ export interface IConfigurationService {
      * @return {Promise<string>} Discord Application ID
      */
     getDiscordApplicationId(): Promise<string>;
+
+    /**
+     * OpenAI API Key取得
+     * @return {Promise<string>} OpenAI API Key
+     */
+    getOpenAIApiKey(): Promise<string>;
+
+    /**
+     * Brave Search API Key取得
+     * @return {Promise<string>} Brave Search API Key
+     */
+    getBraveSearchApiKey(): Promise<string>;
 }
