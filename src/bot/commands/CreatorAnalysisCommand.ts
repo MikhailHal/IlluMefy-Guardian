@@ -8,7 +8,7 @@ import { CommandResult } from "./interface/CommandResult";
  */
 export class CreatorAnalysisCommand implements ICommand {
     public readonly name = "analyze";
-    public readonly description = "Analyze creator information and profile";
+    public readonly description = "クリエイター情報を収集・分析してプロフィールを取得します";
 
     /**
      * コマンド実行

@@ -8,7 +8,7 @@ import { CommandResult } from "./interface/CommandResult";
  */
 export class EditMonitoringCommand implements ICommand {
     public readonly name = "monitor";
-    public readonly description = "Monitor content edits for malicious changes";
+    public readonly description = "コンテンツの編集を監視して悪意のある変更を検出します";
 
     /**
      * コマンド実行
@@ -20,7 +20,7 @@ export class EditMonitoringCommand implements ICommand {
             // TODO: UseCaseを使用した編集監視処理
             // 現在はHello World応答のみ
             await commandInteraction.reply("Hello World from EditMonitoringCommand! 👁️");
-
+            
             return {
                 isSuccess: true,
                 message: "Edit monitoring command executed successfully",

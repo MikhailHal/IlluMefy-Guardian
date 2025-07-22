@@ -8,7 +8,7 @@ import { CommandResult } from "./interface/CommandResult";
  */
 export class ContentModerationCommand implements ICommand {
     public readonly name = "moderate";
-    public readonly description = "Moderate content for inappropriate material";
+    public readonly description = "不適切なコンテンツを検出・対処します";
 
     /**
      * コマンド実行
