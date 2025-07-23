@@ -1,4 +1,4 @@
-import { GuardianBot } from "./bot/guardianBot";
+import { GuardianBot } from "./bot/GuardianBot";
 import { GoogleSecretManager } from "./lib/secretManager/GoogleSecretManager";
 import { ConfigurationService } from "./bot/configurationService/ConfigurationService";
 import { GuardianDispatcher } from "./bot/dispatcher/GuardianDispatcher";
