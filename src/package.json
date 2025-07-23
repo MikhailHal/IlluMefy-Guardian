@@ -19,11 +19,12 @@
   "type": "commonjs",
   "dependencies": {
     "@google-cloud/secret-manager": "^6.1.0",
-    "@types/node": "^24.0.15",
     "discord.js": "^14.21.0",
+    "firebase-admin": "^13.4.0",
     "typescript": "^5.8.3"
   },
   "devDependencies": {
+    "@types/node": "^24.1.0",
     "@typescript-eslint/eslint-plugin": "^5.12.0",
     "@typescript-eslint/parser": "^5.12.0",
     "eslint": "^8.9.0",
