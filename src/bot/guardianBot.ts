@@ -2,12 +2,14 @@ import { Client, GatewayIntentBits } from "discord.js";
 import { IConfigurationService } from "./configurationService/IConfigurationService";
 import { IGuardianBot } from "./IGuardianBot";
 import { IGuardianDispatcher } from "./dispatcher/IGuardianDispatcher";
+import { EditHistoryMonitor } from "./monitors/EditHistoryMonitor";
 
 /**
  * GuardianBot メインクラス
  */
 export class GuardianBot implements IGuardianBot {
     private client: Client;
+    private editHistoryMonitor: EditHistoryMonitor;
     /**
      * コンストラクタ
      *
@@ -25,6 +27,7 @@ export class GuardianBot implements IGuardianBot {
                 GatewayIntentBits.MessageContent,
             ],
         });
+        this.editHistoryMonitor = new EditHistoryMonitor(this.dispatcher);
     }
     /**
      * 初期化
@@ -37,6 +40,9 @@ export class GuardianBot implements IGuardianBot {
         const token = await this.configService.getDiscordToken();
         const applicationId = await this.configService.getDiscordApplicationId();
         await this.dispatcher.registerSlashCommands(token, applicationId);
+
+        // EditHistoryMonitor初期化
+        await this.editHistoryMonitor.initialize();
     }
 
     /**
@@ -65,11 +71,17 @@ export class GuardianBot implements IGuardianBot {
     async start(): Promise<void> {
         const token = await this.configService.getDiscordToken();
         await this.client.login(token);
+
+        // EditHistoryMonitor監視開始
+        this.editHistoryMonitor.startMonitoring();
     }
     /**
      * 終了
      */
     async stop(): Promise<void> {
+        // EditHistoryMonitor監視停止
+        this.editHistoryMonitor.stopMonitoring();
+
         await this.client.destroy();
     }
 }

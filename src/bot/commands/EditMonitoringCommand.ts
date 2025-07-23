@@ -20,7 +20,7 @@ export class EditMonitoringCommand implements ICommand {
             // TODO: UseCaseを使用した編集監視処理
             // 現在はHello World応答のみ
             await commandInteraction.reply("Hello World from EditMonitoringCommand! 👁️");
-            
+
             return {
                 isSuccess: true,
                 message: "Edit monitoring command executed successfully",
