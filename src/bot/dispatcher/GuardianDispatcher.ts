@@ -2,6 +2,7 @@ import { CommandInteraction } from "discord.js";
 import { IGuardianDispatcher } from "./IGuardianDispatcher";
 import { CommandRegistry } from "../commandRegistry/CommandRegistry";
 import { ICommandRegistry } from "../commandRegistry/ICommandRegistry";
+import { DetectNewEditHistoryHandler } from "../surveillances/DetectNewEditHistory/DetectNewEditHistoryHandler";
 
 /**
  * GuardianDispatcher実装
@@ -71,10 +72,12 @@ export class GuardianDispatcher implements IGuardianDispatcher {
                 console.log("Message monitoring...");
                 // TODO: メッセージ監視処理
                 break;
-            case "editHistoryChange":
+            case "editHistoryChange": {
                 console.log("Edit history change detected");
-                // TODO: 編集履歴変更処理
+                const handler = new DetectNewEditHistoryHandler();
+                const result = await handler.onDetect();
                 break;
+            }
             case "maliciousEdit":
                 console.log("Malicious edit detected, reverting...");
                 // TODO: 不正編集復元処理
