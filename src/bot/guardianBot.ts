@@ -2,14 +2,14 @@ import { Client, GatewayIntentBits } from "discord.js";
 import { IConfigurationService } from "./configurationService/IConfigurationService";
 import { IGuardianBot } from "./IGuardianBot";
 import { IGuardianDispatcher } from "./dispatcher/IGuardianDispatcher";
-import { EditHistoryMonitor } from "./monitors/EditHistoryMonitor";
+import { DetectNewEditHistoryWatcher } from "./surveillances/DetectNewEditHistory/DetectNewEditHistoryWatcher";
 
 /**
  * GuardianBot メインクラス
  */
 export class GuardianBot implements IGuardianBot {
     private client: Client;
-    private editHistoryMonitor: EditHistoryMonitor;
+    private detectNewEditHistoryWatcher: DetectNewEditHistoryWatcher;
     /**
      * コンストラクタ
      *
@@ -27,7 +27,7 @@ export class GuardianBot implements IGuardianBot {
                 GatewayIntentBits.MessageContent,
             ],
         });
-        this.editHistoryMonitor = new EditHistoryMonitor(this.dispatcher);
+        this.detectNewEditHistoryWatcher = new DetectNewEditHistoryWatcher(this.dispatcher);
     }
     /**
      * 初期化
@@ -41,8 +41,8 @@ export class GuardianBot implements IGuardianBot {
         const applicationId = await this.configService.getDiscordApplicationId();
         await this.dispatcher.registerSlashCommands(token, applicationId);
 
-        // EditHistoryMonitor初期化
-        await this.editHistoryMonitor.initialize();
+        // ウォッチャー初期化
+        await this.initializeWatcher();
     }
 
     /**
@@ -72,16 +72,35 @@ export class GuardianBot implements IGuardianBot {
         const token = await this.configService.getDiscordToken();
         await this.client.login(token);
 
-        // EditHistoryMonitor監視開始
-        this.editHistoryMonitor.startMonitoring();
+        await this.startWatcher();
     }
+
     /**
      * 終了
      */
     async stop(): Promise<void> {
-        // EditHistoryMonitor監視停止
-        this.editHistoryMonitor.stopMonitoring();
-
+        await this.stopWatcher();
         await this.client.destroy();
+    }
+
+    /**
+     * ウォッチャー初期化
+     */
+    async initializeWatcher(): Promise<void> {
+        await this.detectNewEditHistoryWatcher.initialize();
+    }
+
+    /**
+     * ウォッチャー開始
+     */
+    async startWatcher(): Promise<void> {
+        this.detectNewEditHistoryWatcher.startMonitoring();
+    }
+
+    /**
+     * ウォッチャー停止
+     */
+    async stopWatcher(): Promise<void> {
+        this.detectNewEditHistoryWatcher.stopMonitoring();
     }
 }

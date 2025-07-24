@@ -59,9 +59,9 @@ export class GuardianDispatcher implements IGuardianDispatcher {
     /**
      * イベント処理
      * @param {string} eventType イベント種別
-     * @param {unknown} data イベントデータ
+     * @param {unknown} _data イベントデータ
      */
-    async handleEvent(eventType: string, data: unknown): Promise<void> {
+    async handleEvent(eventType: string, _data: unknown): Promise<void> {
         try {
             console.log(`Processing event: ${eventType}`);
 

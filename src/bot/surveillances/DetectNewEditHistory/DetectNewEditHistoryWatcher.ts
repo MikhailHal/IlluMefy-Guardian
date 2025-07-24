@@ -1,13 +1,13 @@
 import { initializeApp, getApps } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
-import type { IGuardianDispatcher } from "../dispatcher/IGuardianDispatcher";
-import type { IMonitor } from "./IMonitor";
+import type { IGuardianDispatcher } from "../../dispatcher/IGuardianDispatcher";
+import type { IWatcher } from "../interfaces/IWatcher";
 
 /**
- * 編集履歴監視クラス
+ * 編集履歴の更新を検知するウォッチャー
  * Firestore CreatorEditHistory コレクションの変更を監視
  */
-export class EditHistoryMonitor implements IMonitor {
+export class DetectNewEditHistoryWatcher implements IWatcher {
     private db?: FirebaseFirestore.Firestore;
     private unsubscribe?: () => void;
 

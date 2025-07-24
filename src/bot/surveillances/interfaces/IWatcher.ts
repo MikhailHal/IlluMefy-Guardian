@@ -1,7 +1,7 @@
 /**
- * モニターインターフェース
+ * ウォッチャーインターフェース
  */
-export interface IMonitor {
+export interface IWatcher {
     /**
      * 初期化
      */
