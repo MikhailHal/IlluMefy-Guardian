@@ -6,8 +6,8 @@ import { ToxicityScore } from "./ToxicityScore";
 export interface MaliciousEditAnalysis {
     /** 悪意のある編集かどうか */
     isMalicious: boolean;
-    /** 信頼度（0-1） */
-    confidence: number;
+    /** 危険度（0-1） */
+    riskScore: number;
     /** 検知理由 */
     reason: string;
     /** 詳細メッセージ */

@@ -20,7 +20,27 @@ export class DetectMaliciousEditUseCase implements IDetectMaliciousEditUseCase {
     }
 
     /**
-     * DocumentChangeから悪意のある編集を検知
+     * 単一の編集履歴を分析
+     * @param {DocumentChange} change Firestore変更データ
+     * @return {Promise<MaliciousEditAnalysis>} 分析結果
+     */
+    async analyzeSingleEditHistory(change: DocumentChange): Promise<MaliciousEditAnalysis> {
+        try {
+            // 新規追加された編集履歴のみを対象
+            if (change.type !== "added") {
+                return this.createCleanResult("Not a new edit history");
+            }
+
+            // 編集履歴ドキュメントを分析
+            return await this.analyzeEditHistoryDocument(change.doc.data());
+        } catch (error) {
+            console.error("Error analyzing single edit history:", error);
+            return this.createErrorResult("Single analysis failed due to internal error");
+        }
+    }
+
+    /**
+     * DocumentChangeから悪意のある編集を検知（従来の統合処理版）
      * @param {DocumentChange[]} changes Firestore変更データ
      * @return {Promise<MaliciousEditAnalysis>} 分析結果
      */
@@ -35,7 +55,9 @@ export class DetectMaliciousEditUseCase implements IDetectMaliciousEditUseCase {
 
             // 各変更を分析
             const analysisResults = await Promise.all(
-                newChanges.map((change) => this.analyzeEditHistoryDocument(change.doc.data()))
+                newChanges.map(async (change) => {
+                    return await this.analyzeEditHistoryDocument(change.doc.data());
+                })
             );
 
             // 分析結果を統合して最終判定
@@ -89,11 +111,11 @@ export class DetectMaliciousEditUseCase implements IDetectMaliciousEditUseCase {
 
             // 分析結果を使用
             const isMalicious = analysis.isToxic;
-            const confidence = analysis.confidence;
+            const riskScore = analysis.confidence;
 
             return {
                 isMalicious,
-                confidence,
+                riskScore,
                 reason: isMalicious ? "Toxic content detected" : "Content appears clean",
                 details: isMalicious ? `Toxicity score: ${analysis.scores.TOXICITY}` : undefined,
                 flaggedContent: isMalicious ? [text] : undefined,
@@ -140,7 +162,7 @@ export class DetectMaliciousEditUseCase implements IDetectMaliciousEditUseCase {
     private createCleanResult(reason: string): MaliciousEditAnalysis {
         return {
             isMalicious: false,
-            confidence: 0,
+            riskScore: 0,
             reason,
         };
     }
@@ -153,7 +175,7 @@ export class DetectMaliciousEditUseCase implements IDetectMaliciousEditUseCase {
     private createErrorResult(reason: string): MaliciousEditAnalysis {
         return {
             isMalicious: false,
-            confidence: 0,
+            riskScore: 0,
             reason,
             details: "Error occurred during analysis",
         };
