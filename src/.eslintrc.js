@@ -14,7 +14,7 @@ module.exports = {
     ],
     parser: "@typescript-eslint/parser",
     parserOptions: {
-        project: ["IlluMefy-Guardian/src/tsconfig.json"],
+        project: ["tsconfig.json"],
         sourceType: "module",
     },
     ignorePatterns: [
