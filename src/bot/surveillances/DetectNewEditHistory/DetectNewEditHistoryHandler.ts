@@ -24,26 +24,35 @@ export class DetectNewEditHistoryHandler implements IHandler {
      */
     async onDetect(changes: DocumentChange[]): Promise<HandlerResult> {
         try {
-            console.log(`Processing ${changes.length} edit history changes`);
+            for (const change of changes) {
+                const analysisResult = await this.detectMaliciousEditUseCase.analyzeSingleEditHistory(change);
+                
+                // 危険度が50%以上の場合のみDiscord通知を送信
+                const shouldNotify = analysisResult.isMalicious && analysisResult.riskScore >= 0.5;
+                
+                if (shouldNotify) {
+                    const editDetails = this.extractEditDetails([change]);
+                    return {
+                        isSucceed: true,
+                        message: `🚨 Malicious edit detected (危険度: ${Math.round(analysisResult.riskScore * 100)}%): ${analysisResult.reason}`,
+                        actionType: NotificationActionType.DISCORD_NOTIFICATION,
+                        additionalData: {
+                            isMalicious: analysisResult.isMalicious,
+                            riskScore: analysisResult.riskScore,
+                            reason: analysisResult.reason,
+                            flaggedContent: analysisResult.flaggedContent,
+                            editDetails: editDetails,
+                            perspectiveScores: analysisResult.perspectiveScores,
+                        },
+                    };
+                }
+            }
 
-            // UseCaseで悪意のある編集を検知
-            const analysisResult = await this.detectMaliciousEditUseCase.analyzeChanges(changes);
-
-            // 結果に基づいてHandlerResultを作成
+            // すべてクリーンな場合
             return {
                 isSucceed: true,
-                message: analysisResult.isMalicious ?
-                    `🚨 Malicious edit detected: ${analysisResult.reason}` :
-                    `✅ Edit history analyzed: ${analysisResult.reason}`,
-                actionType: analysisResult.isMalicious ?
-                    NotificationActionType.DISCORD_NOTIFICATION :
-                    NotificationActionType.NONE,
-                additionalData: {
-                    isMalicious: analysisResult.isMalicious,
-                    confidence: analysisResult.confidence,
-                    reason: analysisResult.reason,
-                    flaggedContent: analysisResult.flaggedContent,
-                },
+                message: `✅ All ${changes.length} edit histories analyzed - no threats detected`,
+                actionType: NotificationActionType.NONE,
             };
         } catch (error) {
             console.error("Error in DetectNewEditHistoryHandler:", error);
@@ -53,5 +62,26 @@ export class DetectNewEditHistoryHandler implements IHandler {
                 actionType: NotificationActionType.NONE,
             };
         }
+    }
+
+    /**
+     * 編集履歴から詳細情報を抽出
+     * @param {DocumentChange[]} changes Firestore変更データ
+     * @return {Array} 編集詳細情報
+     */
+    private extractEditDetails(changes: DocumentChange[]): Array<Record<string, unknown>> {
+        return changes.map((change) => {
+            const data = change.doc.data();
+            return {
+                editHistoryId: change.doc.id, // 編集履歴のID（混同を避けるため名前変更）
+                creatorId: data.creatorId || data.targetCreatorId || "不明", // 実際のクリエイターID
+                userPhoneNumber: data.userPhoneNumber || "不明",
+                creatorName: data.creatorName || "不明",
+                timestamp: data.timestamp || null,
+                basicInfoChanges: data.basicInfoChanges || null,
+                socialLinksChanges: data.socialLinksChanges || null,
+                tagsChanges: data.tagsChanges || null,
+            };
+        });
     }
 }
