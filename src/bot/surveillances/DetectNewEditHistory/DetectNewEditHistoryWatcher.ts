@@ -10,6 +10,7 @@ import type { IWatcher } from "../interfaces/IWatcher";
 export class DetectNewEditHistoryWatcher implements IWatcher {
     private db?: FirebaseFirestore.Firestore;
     private unsubscribe?: () => void;
+    private isInitialLoad = true;
 
     /**
      * コンストラクタ
@@ -49,6 +50,13 @@ export class DetectNewEditHistoryWatcher implements IWatcher {
             .collection("creatorEditHistories")
             .onSnapshot((snapshot) => {
                 console.log(`Firestore snapshot: ${snapshot.size} docs, ${snapshot.docChanges().length} changes`);
+
+                // 初回起動時の全件取得は無視
+                if (this.isInitialLoad) {
+                    this.isInitialLoad = false;
+                    console.log("Initial load ignored - skipping existing edit histories");
+                    return;
+                }
 
                 const changes = snapshot.docChanges();
                 const newDocs = changes.filter((change) => change.type === "added");
