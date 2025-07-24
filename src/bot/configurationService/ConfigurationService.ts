@@ -50,4 +50,12 @@ export class ConfigurationService implements IConfigurationService {
     async getBraveSearchApiKey(): Promise<string> {
         return await this.secretManager.getSecret("brave-search-api-key");
     }
+
+    /**
+     * Discordアラートチャンネル ID取得
+     * @return {Promise<string>} Discord Alert Channel ID
+     */
+    async getDiscordAlertChannelId(): Promise<string> {
+        return await this.secretManager.getSecret("discord-alert-channel-id");
+    }
 }

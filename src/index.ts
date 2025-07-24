@@ -2,6 +2,7 @@ import { GuardianBot } from "./bot/GuardianBot";
 import { GoogleSecretManager } from "./lib/secretManager/GoogleSecretManager";
 import { ConfigurationService } from "./bot/configurationService/ConfigurationService";
 import { GuardianDispatcher } from "./bot/dispatcher/GuardianDispatcher";
+import { GuardianEventBus } from "./bot/eventBus/GuardianEventBus";
 
 /**
  * アプリケーションエントリーポイント
@@ -13,11 +14,9 @@ async function main(): Promise<void> {
         // 依存関係の構築 (DI)
         const secretManager = new GoogleSecretManager(projectId);
         const configService = new ConfigurationService(secretManager);
-
-        const dispatcher = new GuardianDispatcher(configService);
-
-        // GuardianBot初期化
-        const bot = new GuardianBot(dispatcher, configService);
+        const eventBus = new GuardianEventBus();
+        const dispatcher = new GuardianDispatcher(configService, eventBus);
+        const bot = new GuardianBot(dispatcher, configService, eventBus);
 
         console.log("IlluMefy-Guardian starting...");
 

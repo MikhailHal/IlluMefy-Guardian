@@ -31,4 +31,10 @@ export interface IConfigurationService {
      * @return {Promise<string>} Brave Search API Key
      */
     getBraveSearchApiKey(): Promise<string>;
+
+    /**
+     * Discordアラートチャンネル ID取得
+     * @return {Promise<string>} Discord Alert Channel ID
+     */
+    getDiscordAlertChannelId(): Promise<string>;
 }

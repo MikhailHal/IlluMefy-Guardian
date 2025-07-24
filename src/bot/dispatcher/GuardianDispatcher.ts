@@ -6,6 +6,7 @@ import { ICommandRegistry } from "../commandRegistry/ICommandRegistry";
 import { DetectNewEditHistoryHandler } from "../surveillances/DetectNewEditHistory/DetectNewEditHistoryHandler";
 import { IConfigurationService } from "../configurationService/IConfigurationService";
 import { NotificationActionType, HandlerResult } from "../surveillances/interfaces/IHandler";
+import { GuardianEventBus } from "../eventBus/GuardianEventBus";
 
 /**
  * GuardianDispatcher実装
@@ -17,8 +18,12 @@ export class GuardianDispatcher implements IGuardianDispatcher {
     /**
      * コンストラクタ
      * @param {IConfigurationService} configService 設定サービス
+     * @param {GuardianEventBus} eventBus イベントバス
      */
-    constructor(private configService: IConfigurationService) {
+    constructor(
+        private configService: IConfigurationService,
+        private eventBus: GuardianEventBus,
+    ) {
         this.commandRegistry = new CommandRegistry();
     }
 
@@ -111,15 +116,15 @@ export class GuardianDispatcher implements IGuardianDispatcher {
         switch (result.actionType) {
         case NotificationActionType.DISCORD_NOTIFICATION:
             console.log("🚨 Processing Discord notification");
-            // TODO: Discord通知機能の実装
+            this.eventBus.emitDiscordNotification(result.message, result.additionalData);
             break;
         case NotificationActionType.COMMAND_REPLY:
             console.log("💬 Processing command reply");
-            // TODO: コマンド返信機能の実装
+            this.eventBus.emitCommandReply(result.message, result.additionalData);
             break;
         case NotificationActionType.EMERGENCY_ALERT:
             console.log("🔥 Processing emergency alert");
-            // TODO: 緊急アラート機能の実装
+            this.eventBus.emitEmergencyAlert(result.additionalData);
             break;
         case NotificationActionType.NONE:
         default:
