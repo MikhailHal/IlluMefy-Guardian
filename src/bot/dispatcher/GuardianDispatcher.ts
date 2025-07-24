@@ -1,8 +1,11 @@
 import { CommandInteraction } from "discord.js";
+import { DocumentChange } from "firebase-admin/firestore";
 import { IGuardianDispatcher } from "./IGuardianDispatcher";
 import { CommandRegistry } from "../commandRegistry/CommandRegistry";
 import { ICommandRegistry } from "../commandRegistry/ICommandRegistry";
 import { DetectNewEditHistoryHandler } from "../surveillances/DetectNewEditHistory/DetectNewEditHistoryHandler";
+import { IConfigurationService } from "../configurationService/IConfigurationService";
+import { NotificationActionType, HandlerResult } from "../surveillances/interfaces/IHandler";
 
 /**
  * GuardianDispatcher実装
@@ -13,8 +16,9 @@ export class GuardianDispatcher implements IGuardianDispatcher {
 
     /**
      * コンストラクタ
+     * @param {IConfigurationService} configService 設定サービス
      */
-    constructor() {
+    constructor(private configService: IConfigurationService) {
         this.commandRegistry = new CommandRegistry();
     }
 
@@ -66,7 +70,9 @@ export class GuardianDispatcher implements IGuardianDispatcher {
         try {
             console.log(`Processing event: ${eventType}`);
 
-            // TODO: イベントルーティング実装
+            let handlerResult: HandlerResult | null = null;
+
+            // イベント別の固有処理
             switch (eventType) {
             case "messageCreate":
                 console.log("Message monitoring...");
@@ -74,8 +80,9 @@ export class GuardianDispatcher implements IGuardianDispatcher {
                 break;
             case "editHistoryChange": {
                 console.log("Edit history change detected");
-                const handler = new DetectNewEditHistoryHandler();
-                const result = await handler.onDetect();
+                const handler = new DetectNewEditHistoryHandler(this.configService);
+                handlerResult = await handler.onDetect(_data as DocumentChange[]);
+                console.log(`Handler result: ${handlerResult.message}`);
                 break;
             }
             case "maliciousEdit":
@@ -84,9 +91,40 @@ export class GuardianDispatcher implements IGuardianDispatcher {
                 break;
             default:
                 console.log(`Unhandled event type: ${eventType}`);
+                return;
+            }
+
+            // アクションタイプ別の共通処理
+            if (handlerResult) {
+                await this.processHandlerAction(handlerResult);
             }
         } catch (error) {
             console.error(`Error handling event ${eventType}:`, error);
+        }
+    }
+
+    /**
+     * ハンドラー結果に基づくアクション処理
+     * @param {HandlerResult} result ハンドラー結果
+     */
+    private async processHandlerAction(result: HandlerResult): Promise<void> {
+        switch (result.actionType) {
+        case NotificationActionType.DISCORD_NOTIFICATION:
+            console.log("🚨 Processing Discord notification");
+            // TODO: Discord通知機能の実装
+            break;
+        case NotificationActionType.COMMAND_REPLY:
+            console.log("💬 Processing command reply");
+            // TODO: コマンド返信機能の実装
+            break;
+        case NotificationActionType.EMERGENCY_ALERT:
+            console.log("🔥 Processing emergency alert");
+            // TODO: 緊急アラート機能の実装
+            break;
+        case NotificationActionType.NONE:
+        default:
+            // 何もしない
+            break;
         }
     }
 }

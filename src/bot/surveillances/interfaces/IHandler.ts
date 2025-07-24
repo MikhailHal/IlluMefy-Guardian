@@ -2,7 +2,21 @@
  * ハンドラーインターフェース
  */
 export interface IHandler {
-    onDetect(): Promise<HandlerResult>;
+    onDetect(data: unknown): Promise<HandlerResult>;
+}
+
+/**
+ * 通知・返信タイプ
+ */
+export enum NotificationActionType {
+    /** 何もしない */
+    NONE = "none",
+    /** Discord通知 */
+    DISCORD_NOTIFICATION = "discord_notification",
+    /** コマンド返信 */
+    COMMAND_REPLY = "command_reply",
+    /** 緊急アラート */
+    EMERGENCY_ALERT = "emergency_alert",
 }
 
 /**
@@ -13,4 +27,8 @@ export interface HandlerResult {
     isSucceed: boolean;
     /** メッセージ */
     message: string;
+    /** 通知・返信のタイプ */
+    actionType: NotificationActionType;
+    /** 追加データ（JSON形式） */
+    additionalData?: Record<string, unknown>;
 }

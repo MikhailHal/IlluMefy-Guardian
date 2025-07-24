@@ -14,7 +14,7 @@ async function main(): Promise<void> {
         const secretManager = new GoogleSecretManager(projectId);
         const configService = new ConfigurationService(secretManager);
 
-        const dispatcher = new GuardianDispatcher();
+        const dispatcher = new GuardianDispatcher(configService);
 
         // GuardianBot初期化
         const bot = new GuardianBot(dispatcher, configService);
