@@ -4,6 +4,7 @@ import { IGuardianBot } from "./IGuardianBot";
 import { IGuardianDispatcher } from "./dispatcher/IGuardianDispatcher";
 import { DetectNewEditHistoryWatcher } from "./surveillances/DetectNewEditHistory/DetectNewEditHistoryWatcher";
 import { GuardianEventBus, NotificationEventData } from "./eventBus/GuardianEventBus";
+import { DiscordNotificationType } from "./types/DiscordNotificationType";
 
 /**
  * GuardianBot メインクラス
@@ -123,7 +124,9 @@ export class GuardianBot implements IGuardianBot {
      */
     private async handleDiscordNotification(data: NotificationEventData): Promise<void> {
         try {
-            const channelId = await this.configService.getDiscordAlertChannelId();
+            // 通知タイプに基づいてチャンネルIDを取得
+            const notificationType = data.additionalData?.notificationType as DiscordNotificationType || DiscordNotificationType.MALICIOUS_EDIT;
+            const channelId = await this.configService.getChannelIdForNotificationType(notificationType);
             const channel = await this.client.channels.fetch(channelId);
 
             if (!channel || !channel.isTextBased()) {

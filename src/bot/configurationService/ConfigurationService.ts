@@ -1,5 +1,6 @@
 import { IConfigurationService } from "./IConfigurationService";
 import { ISecretManager } from "../../lib/secretManager/ISecretManager";
+import { DiscordNotificationType } from "../types/DiscordNotificationType";
 
 /**
  * 設定管理サービス実装
@@ -52,10 +53,22 @@ export class ConfigurationService implements IConfigurationService {
     }
 
     /**
-     * Discordアラートチャンネル ID取得
-     * @return {Promise<string>} Discord Alert Channel ID
+     * 通知タイプ別Discordチャンネル ID取得
+     * @param {DiscordNotificationType} type 通知タイプ
+     * @return {Promise<string>} Discord Channel ID
      */
-    async getDiscordAlertChannelId(): Promise<string> {
-        return await this.secretManager.getSecret("discord-alert-channel-id");
+    async getChannelIdForNotificationType(type: DiscordNotificationType): Promise<string> {
+        switch (type) {
+            case DiscordNotificationType.MALICIOUS_EDIT:
+                try {
+                    return await this.secretManager.getSecret("discord-malicious-edit-channel-id");
+                } catch (error) {
+                    console.warn(`No specific channel configured for ${type}, using default alert channel`);
+                    return await this.secretManager.getSecret("discord-wander-channel-id");
+                }
+            default:
+                console.warn(`Unknown notification type: ${type}, using default alert channel`);
+                return await this.secretManager.getSecret("discord-wander-channel-id");
+        }
     }
 }

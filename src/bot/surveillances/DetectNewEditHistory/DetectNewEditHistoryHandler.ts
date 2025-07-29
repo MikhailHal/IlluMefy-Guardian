@@ -2,6 +2,7 @@ import { DocumentChange } from "firebase-admin/firestore";
 import { HandlerResult, IHandler, NotificationActionType } from "../interfaces/IHandler";
 import { DetectMaliciousEditUseCase } from "../../domain/usecases/DetectMaliciousEditUseCase/DetectMaliciousEditUseCase";
 import { IConfigurationService } from "../../configurationService/IConfigurationService";
+import { DiscordNotificationType } from "../../types/DiscordNotificationType";
 
 /**
  * DetectNewEditHistoryWatcher検知時のイベントハンドラ
@@ -43,6 +44,7 @@ export class DetectNewEditHistoryHandler implements IHandler {
                             flaggedContent: analysisResult.flaggedContent,
                             editDetails: editDetails,
                             perspectiveScores: analysisResult.perspectiveScores,
+                            notificationType: DiscordNotificationType.MALICIOUS_EDIT,
                         },
                     };
                 }

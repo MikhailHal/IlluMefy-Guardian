@@ -1,3 +1,5 @@
+import { DiscordNotificationType } from "../types/DiscordNotificationType";
+
 /**
  * 設定管理サービスインターフェース
  */
@@ -33,8 +35,9 @@ export interface IConfigurationService {
     getBraveSearchApiKey(): Promise<string>;
 
     /**
-     * Discordアラートチャンネル ID取得
-     * @return {Promise<string>} Discord Alert Channel ID
+     * 通知タイプ別Discordチャンネル ID取得
+     * @param {DiscordNotificationType} type 通知タイプ
+     * @return {Promise<string>} Discord Channel ID
      */
-    getDiscordAlertChannelId(): Promise<string>;
+    getChannelIdForNotificationType(type: DiscordNotificationType): Promise<string>;
 }
