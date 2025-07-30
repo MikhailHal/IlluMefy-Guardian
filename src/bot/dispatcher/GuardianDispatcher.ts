@@ -1,5 +1,5 @@
 import { CommandInteraction } from "discord.js";
-import { DocumentChange } from "firebase-admin/firestore";
+import { DocumentChange, getFirestore } from "firebase-admin/firestore";
 import { IGuardianDispatcher } from "./IGuardianDispatcher";
 import { CommandRegistry } from "../commandRegistry/CommandRegistry";
 import { ICommandRegistry } from "../commandRegistry/ICommandRegistry";
@@ -85,7 +85,8 @@ export class GuardianDispatcher implements IGuardianDispatcher {
                 break;
             case "editHistoryChange": {
                 console.log("Edit history change detected");
-                const handler = new DetectNewEditHistoryHandler(this.configService);
+                const firestore = getFirestore();
+                const handler = new DetectNewEditHistoryHandler(this.configService, firestore);
                 handlerResult = await handler.onDetect(_data as DocumentChange[]);
                 console.log(`Handler result: ${handlerResult.message}`);
                 break;
