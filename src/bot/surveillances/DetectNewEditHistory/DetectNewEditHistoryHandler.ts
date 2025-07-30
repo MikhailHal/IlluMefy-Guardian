@@ -1,6 +1,8 @@
-import { DocumentChange } from "firebase-admin/firestore";
+import { DocumentChange, Firestore } from "firebase-admin/firestore";
 import { HandlerResult, IHandler, NotificationActionType } from "../interfaces/IHandler";
 import { AnalyzeMaliciousEditUseCase } from "../../domain/usecases/AnalyzeMaliciousEditUseCase/analyzeMaliciousEditUseCase";
+import { RevertMaliciousEditUseCase } from "../../domain/usecases/RevertMaliciousEditUseCase/revertMaliciousEditUseCase";
+import { CreatorEditHistory } from "../../domain/entities/creatorEditHistory";
 import { IConfigurationService } from "../../configurationService/IConfigurationService";
 import { DiscordNotificationType } from "../../types/DiscordNotificationType";
 
@@ -9,13 +11,19 @@ import { DiscordNotificationType } from "../../types/DiscordNotificationType";
  */
 export class DetectNewEditHistoryHandler implements IHandler {
     private analyzeMaliciousEditUseCase: AnalyzeMaliciousEditUseCase;
+    private revertMaliciousEditUseCase: RevertMaliciousEditUseCase;
 
     /**
      * コンストラクタ
      * @param {IConfigurationService} configService 設定サービス
+     * @param {Firestore} firestore Firestoreインスタンス
      */
-    constructor(configService: IConfigurationService) {
+    constructor(
+        configService: IConfigurationService,
+        private readonly firestore: Firestore
+    ) {
         this.analyzeMaliciousEditUseCase = new AnalyzeMaliciousEditUseCase(configService);
+        this.revertMaliciousEditUseCase = new RevertMaliciousEditUseCase(firestore);
     }
 
     /**
@@ -27,15 +35,30 @@ export class DetectNewEditHistoryHandler implements IHandler {
         try {
             for (const change of changes) {
                 const analysisResult = await this.analyzeMaliciousEditUseCase.analyzeSingleEditHistory(change);
-                
+
                 // 危険度が50%以上の場合のみDiscord通知を送信
                 const shouldNotify = analysisResult.isMalicious && analysisResult.riskScore >= 0.5;
-                
+
                 if (shouldNotify) {
+                    // 悪意のある編集を自動復元
+                    const editHistory = this.createEditHistoryFromChange(change);
+                    const revertResult = await this.revertMaliciousEditUseCase.execute({
+                        editHistory: editHistory,
+                        revertReason: `自動復元: 悪意のある編集検知 (危険度: ${Math.round(analysisResult.riskScore * 100)}%)`,
+                    });
+
+                    let message = `🚨 Malicious edit detected (危険度: ${Math.round(analysisResult.riskScore * 100)}%): ${analysisResult.reason}`;
+
+                    if (revertResult.isSuccess) {
+                        message += " → ✅ 自動復元完了";
+                    } else {
+                        message += ` → ❌ 自動復元失敗: ${revertResult.error}`;
+                    }
+
                     const editDetails = this.extractEditDetails([change]);
                     return {
                         isSucceed: true,
-                        message: `🚨 Malicious edit detected (危険度: ${Math.round(analysisResult.riskScore * 100)}%): ${analysisResult.reason}`,
+                        message: message,
                         actionType: NotificationActionType.DISCORD_NOTIFICATION,
                         additionalData: {
                             isMalicious: analysisResult.isMalicious,
@@ -45,6 +68,8 @@ export class DetectNewEditHistoryHandler implements IHandler {
                             editDetails: editDetails,
                             perspectiveScores: analysisResult.perspectiveScores,
                             notificationType: DiscordNotificationType.MALICIOUS_EDIT,
+                            autoRevertSuccess: revertResult.isSuccess,
+                            autoRevertError: revertResult.error,
                         },
                     };
                 }
@@ -64,6 +89,28 @@ export class DetectNewEditHistoryHandler implements IHandler {
                 actionType: NotificationActionType.NONE,
             };
         }
+    }
+
+    /**
+     * DocumentChangeからCreatorEditHistoryエンティティを作成
+     * @param {DocumentChange} change Firestore変更データ
+     * @return {CreatorEditHistory} 編集履歴エンティティ
+     */
+    private createEditHistoryFromChange(change: DocumentChange): CreatorEditHistory {
+        const data = change.doc.data();
+        return new CreatorEditHistory({
+            id: change.doc.id,
+            creatorId: data.creatorId || data.targetCreatorId || "",
+            creatorName: data.creatorName || "",
+            userId: data.userId || "",
+            userPhoneNumber: data.userPhoneNumber || "",
+            timestamp: data.timestamp || new Date(),
+            basicInfoChanges: data.basicInfoChanges || null,
+            socialLinksChanges: data.socialLinksChanges || null,
+            tagsChanges: data.tagsChanges || null,
+            editReason: data.editReason || undefined,
+            moderatorNote: data.moderatorNote || undefined,
+        });
     }
 
     /**
