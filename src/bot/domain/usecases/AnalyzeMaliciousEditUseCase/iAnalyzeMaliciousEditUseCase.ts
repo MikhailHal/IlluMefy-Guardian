@@ -2,9 +2,9 @@ import { DocumentChange } from "firebase-admin/firestore";
 import { MaliciousEditAnalysis } from "../../entities/MaliciousEditAnalysis";
 
 /**
- * 悪意のある編集検知ユースケースインターフェース
+ * 悪意のある編集分析ユースケースインターフェース
  */
-export interface IDetectMaliciousEditUseCase {
+export interface IAnalyzeMaliciousEditUseCase {
     /**
      * DocumentChangeから悪意のある編集を検知
      * @param {DocumentChange[]} changes Firestore変更データ

@@ -1,6 +1,6 @@
 import { DocumentChange } from "firebase-admin/firestore";
 import { HandlerResult, IHandler, NotificationActionType } from "../interfaces/IHandler";
-import { DetectMaliciousEditUseCase } from "../../domain/usecases/DetectMaliciousEditUseCase/DetectMaliciousEditUseCase";
+import { AnalyzeMaliciousEditUseCase } from "../../domain/usecases/AnalyzeMaliciousEditUseCase/analyzeMaliciousEditUseCase";
 import { IConfigurationService } from "../../configurationService/IConfigurationService";
 import { DiscordNotificationType } from "../../types/DiscordNotificationType";
 
@@ -8,14 +8,14 @@ import { DiscordNotificationType } from "../../types/DiscordNotificationType";
  * DetectNewEditHistoryWatcher検知時のイベントハンドラ
  */
 export class DetectNewEditHistoryHandler implements IHandler {
-    private detectMaliciousEditUseCase: DetectMaliciousEditUseCase;
+    private analyzeMaliciousEditUseCase: AnalyzeMaliciousEditUseCase;
 
     /**
      * コンストラクタ
      * @param {IConfigurationService} configService 設定サービス
      */
     constructor(configService: IConfigurationService) {
-        this.detectMaliciousEditUseCase = new DetectMaliciousEditUseCase(configService);
+        this.analyzeMaliciousEditUseCase = new AnalyzeMaliciousEditUseCase(configService);
     }
 
     /**
@@ -26,7 +26,7 @@ export class DetectNewEditHistoryHandler implements IHandler {
     async onDetect(changes: DocumentChange[]): Promise<HandlerResult> {
         try {
             for (const change of changes) {
-                const analysisResult = await this.detectMaliciousEditUseCase.analyzeSingleEditHistory(change);
+                const analysisResult = await this.analyzeMaliciousEditUseCase.analyzeSingleEditHistory(change);
                 
                 // 危険度が50%以上の場合のみDiscord通知を送信
                 const shouldNotify = analysisResult.isMalicious && analysisResult.riskScore >= 0.5;

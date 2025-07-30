@@ -1,14 +1,14 @@
 import { DocumentChange } from "firebase-admin/firestore";
-import { IDetectMaliciousEditUseCase } from "./IDetectMaliciousEditUseCase";
+import { IAnalyzeMaliciousEditUseCase } from "./iAnalyzeMaliciousEditUseCase";
 import { MaliciousEditAnalysis } from "../../entities/MaliciousEditAnalysis";
 import { ToxicityScore } from "../../entities/ToxicityScore";
 import { PerspectiveApiClient } from "../../../../lib/perspective/PerspectiveApiClient";
 import { IConfigurationService } from "../../../configurationService/IConfigurationService";
 
 /**
- * 悪意のある編集検知ユースケース実装
+ * 悪意のある編集分析ユースケース実装
  */
-export class DetectMaliciousEditUseCase implements IDetectMaliciousEditUseCase {
+export class AnalyzeMaliciousEditUseCase implements IAnalyzeMaliciousEditUseCase {
     private perspectiveClient: PerspectiveApiClient;
 
     /**
