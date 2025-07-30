@@ -1,5 +1,5 @@
-import { UpdateCreatorRequest } from "./UpdateCreatorRequest";
-import { UpdateCreatorResponse } from "./UpdateCreatorResponse";
+import { UpdateCreatorRequest } from "./updateCreatorRequest";
+import { UpdateCreatorResponse } from "./updateCreatorResponse";
 
 /**
  * クリエイター更新リポジトリインターフェース

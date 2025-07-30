@@ -1,7 +1,7 @@
 import { Firestore, FieldValue } from "firebase-admin/firestore";
-import { IUpdateCreatorRepository } from "./IUpdateCreatorRepository";
-import { UpdateCreatorRequest } from "./UpdateCreatorRequest";
-import { UpdateCreatorResponse } from "./UpdateCreatorResponse";
+import { IUpdateCreatorRepository } from "./iUpdateCreatorRepository";
+import { UpdateCreatorRequest } from "./updateCreatorRequest";
+import { UpdateCreatorResponse } from "./updateCreatorResponse";
 
 /**
  * クリエイター更新リポジトリ実装
